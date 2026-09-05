@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>虚拟键盘 - T-PageCode</title>
+    <style>
+        body{
+            background: linear-gradient(360deg,rgb(208, 240, 255),rgb(155, 223, 255));
+            background-attachment: fixed;
+        }
+        *{
+            font-weight: 200;
+            user-select: none;
+        }
+        #preview{
+            position: absolute;
+            top: 250px;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 900px;
+            height: 100px;
+            background-color: rgb(219, 250, 255);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            overflow: auto;
+            scrollbar-width: auto;
+        }
+        #preview::-webkit-scrollbar{
+            width: 10px;
+            height: 10px;
+        }
+        #preview::-webkit-scrollbar-track{
+            background-color: rgb(255, 255, 255);
+            border-radius: 20px;
+        }
+        #preview::-webkit-scrollbar-thumb{
+            background-color: rgb(175, 244, 255);
+            border-radius: 20px;
+        }
+        #preview::-webkit-scrollbar-corner{
+            visibility: hidden;
+        }
+        #keyboard{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 900px;
+            height: 400px;
+            background-color: rgb(219, 250, 255);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .text-key{
+            margin-top: 10px;
+            margin-left: 10px;
+            width: 60px;
+            height: 60px;
+            background-color: rgb(182, 253, 255);
+            border-radius: 15px;
+            transition: background-color 0.3s ease,
+            color 0.3s ease,
+            filter 0.3s ease,
+            transform 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .text-key:hover{
+            background-color: rgb(108, 221, 255);
+            color: white;
+            transform: translate(0px,-5px);
+        }
+        .text-key:active{
+            background-color: rgb(0, 195, 255);
+            filter: drop-shadow(0 0 20px rgb(0,195,255));
+            color: white;
+            transform: translate(0px,-10px);
+        }
+        .text-key.go{
+            background-color: rgb(0, 195, 255);
+            filter: drop-shadow(0 0 20px rgb(0,195,255));
+            color: white;
+            transform: translate(0px,-10px);
+        }
+        #white-space{
+            width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="preview"></div>
+    <div id="keyboard">
+        <div class="text-key" data-key="1">1 !</div>
+        <div class="text-key" data-key="2">2 @</div>
+        <div class="text-key" data-key="3">3 #</div>
+        <div class="text-key" data-key="4">4 $</div>
+        <div class="text-key" data-key="5">5 %</div>
+        <div class="text-key" data-key="6">6 ^</div>
+        <div class="text-key" data-key="7">7 &</div>
+        <div class="text-key" data-key="8">8 *</div>
+        <div class="text-key" data-key="9">9 &#40;</div>
+        <div class="text-key" data-key="0">0 &#41;</div>
+        <div class="text-key" data-key="-">- _</div>
+        <div class="text-key" data-key="=">= +</div>
+        <div class="text-key" data-key="E">E</div>
+        <div class="text-key" data-key="R">R</div>
+        <div class="text-key" data-key="T">T</div>
+        <div class="text-key" data-key="Y">Y</div>
+        <div class="text-key" data-key="U">U</div>
+        <div class="text-key" data-key="I">I</div>
+        <div class="text-key" data-key="O">O</div>
+        <div class="text-key" data-key="P">P</div>
+        <div class="text-key" data-key="[">[ {</div>
+        <div class="text-key" data-key="]">] }</div>
+        <div class="text-key" data-key="A">A</div>
+        <div class="text-key" data-key="S">S</div>
+        <div class="text-key" data-key="D">D</div>
+        <div class="text-key" data-key="F">F</div>
+        <div class="text-key" data-key="G">G</div>
+        <div class="text-key" data-key="H">H</div>
+        <div class="text-key" data-key="J">J</div>
+        <div class="text-key" data-key="K">K</div>
+        <div class="text-key" data-key="L">L</div>
+        <div class="text-key" data-key=";">; :</div>
+        <div class="text-key" data-key="'">' "</div>
+        <div class="text-key" data-key="\">\ |</div>
+        <div class="text-key" data-key="Z">Z</div>
+        <div class="text-key" data-key="X">X</div>
+        <div class="text-key" data-key="C">C</div>
+        <div class="text-key" data-key="V">V</div>
+        <div class="text-key" data-key="B">B</div>
+        <div class="text-key" data-key="N">N</div>
+        <div class="text-key" data-key="M">M</div>
+        <div class="text-key" data-key=",">, &lt;</div>
+        <div class="text-key" data-key=".">. &gt;</div>
+        <div class="text-key" data-key="/">/ ?</div>
+        <div class="text-key" data-key=" " id="white-space">—————</div>    
+    </div>
+    <script>
+        let keys = document.querySelectorAll("[data-key]");
+        function convert(e) {
+            let keyName = e.key;
+            if (e.key === ":") {
+                keyName = ";";
+            }
+            if (e.key === "{") {
+                keyName = "[";
+            }
+            if (e.key === "}") {
+                keyName = "]";
+            }
+            if (e.key === '"') {
+                keyName = "'";
+            }
+            if (e.key === "|") {
+                keyName = "\\"; 
+            }
+            if (e.key === "<") {
+                keyName = ","; 
+            }
+            if (e.key === ">") {
+                keyName = ".";
+            }
+            if (e.key === "?") {
+                keyName = "/";
+            }
+            if (e.key === "_") {
+                keyName = "-"
+            }
+            if (e.key === "+") {
+                keyName = "="
+            }
+            if (e.key === "!") {
+                keyName = "1";
+            }
+            if (e.key === "@") {
+                keyName = "2";
+            }
+            if (e.key === "#") {
+                keyName = "3";
+            }
+            if (e.key === "$") {
+                keyName = "4";
+            }
+            if (e.key === "%") {
+                keyName = "5";
+            }
+            if (e.key === "^") {
+                keyName = "6";
+            }
+            if (e.key === "&") {
+                keyName = "7";
+            }
+            if (e.key === "*") {
+                keyName = "8";
+            }
+            if (e.key === "(") {
+                keyName = "9";
+            }
+            if (e.key === ")") {
+                keyName = "0";
+            }
+            return keyName.toUpperCase();
+        }
+        document.addEventListener("keydown",(e) => {
+            let keyName = convert(e);
+            keys.forEach((key) => {
+                if (key.getAttribute("data-key") === keyName) {
+                    key.classList.add("go");
+                }
+            });
+        })
+        document.addEventListener("keyup",(e) => {
+            let keyName = convert(e);
+            keys.forEach((key) => {
+                if (key.getAttribute("data-key") === keyName) {
+                    key.classList.remove("go");
+                }
+            })
+        })
+        document.addEventListener("contextmenu",(e) => {
+            e.preventDefault();
+        })
+        document.addEventListener("keydown",(e) =>  {
+            let preview = document.getElementById("preview");
+            if (e.key === "Backspace") {
+                preview.innerText = preview.innerText.slice(0,-1)
+            }
+            else if (e.key === "Enter") {
+                preview.innerText += "\n";
+            }
+            else if (e.key === "Shift") {
+            }
+            else if (e.key === "Meta") {
+            }
+            else if (e.key === "Alt") {
+            }
+            else if (e.key === "Control") {
+            }
+            else if (e.key === "CapsLock") {
+            }
+            else if (e.key === "Tab") {
+            }
+            else if (e.key === "ContextMenu") {
+            }
+            else if (e.key === "PageUp") {
+            }
+            else if (e.key === "PageDown") {
+            }
+            else if (e.key === "Delete") {
+            }
+            else if (e.key === "Home") {
+            }
+            else if (e.key === "Insert") {
+            }
+            else if (e.key === "End") {
+            }
+            else if (e.key === "ScrollLock") {
+            }
+            else if (e.key === "Pause") {
+            }
+            else if (e.key === "NumLock") {
+            }
+            else if (e.key === "Escape") {
+            }
+            else if (e.key === "ArrowLeft") {
+                preview.innerText += "←";
+            }
+            else if (e.key === "ArrowRight") {
+                preview.innerText += "→";
+            }
+            else if (e.key === "ArrowUp") {
+                preview.innerText += "↑";
+            }
+            else if (e.key === "ArrowDown") {
+                preview.innerText += "↓";
+            }
+            else if (e.key === " ") {
+                preview.innerText += "\u00A0";
+            }
+            else {
+                preview.innerText += e.key;
+            }
+        })
+    document.querySelectorAll(".text-key").forEach((key) => {
+        key.addEventListener("click",() => {
+            let preview = document.getElementById("preview");
+            let keyName = key.getAttribute("data-key");
+            if (keyName === "Backspace") {
+                preview.innerText = preview.innerText.slice(0, -1);
+            }
+            else if (keyName === "Enter") {
+                preview.innerText += "\n";
+            }
+            else if (keyName === "Shift" || keyName === "Meta" || keyName === "Alt" || keyName === "Control" ||
+                   keyName === "CapsLock" || keyName === "Tab" || keyName === "ContextMenu" ||
+                   keyName === "PageUp" || keyName === "PageDown" || keyName === "Delete" ||
+                   keyName === "Home" || keyName === "Insert" || keyName === "End" ||
+                   keyName === "ScrollLock" || keyName === "Pause" || keyName === "NumLock" ||
+                   keyName === "Escape") {
+            }
+            else if (keyName === "ArrowLeft") {
+                preview.innerText += "←";
+            }
+            else if (keyName === "ArrowRight") {
+                preview.innerText += "→";
+            }
+            else if (keyName === "ArrowUp") {
+                preview.innerText += "↑";
+            }
+            else if (keyName === "ArrowDown") {
+                preview.innerText += "↓";
+            }
+            else if (keyName === " ") {
+                preview.innerText += "\u00a0";
+            }
+            else {
+                preview.innerText += keyName;
+            }
+        })
+    })
+    </script>
+</body>
+</html>
